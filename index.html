@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f4f5f8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0c0e12" media="(prefers-color-scheme: dark)">
+<meta name="description" content="Página para entrar al servidor de Minecraft: acceso rápido a Bedrock y Java.">
+<title>Entrar al servidor</title>
+<style>
+  /* =========================================================
+     TOKENS
+     ========================================================= */
+  :root {
+    color-scheme: light dark;
+
+    /* Marca: verde lima -> morado, suave y poco saturado */
+    --brand-1: #cbee93;   /* verde lima */
+    --brand-2: #a6d7a8;   /* verde agua */
+    --brand-3: #a9a0e8;   /* violeta claro */
+    --brand-4: #8a6fe0;   /* morado */
+    --brand-grad: linear-gradient(135deg, var(--brand-1) 0%, var(--brand-2) 26%, var(--brand-3) 62%, var(--brand-4) 100%);
+    --brand-soft: linear-gradient(135deg, rgba(203,238,147,.22), rgba(138,111,224,.18));
+    --brand-ink: #12151c;   /* texto sobre el degradado */
+
+    /* Superficies y texto (claro) */
+    --bg: #f4f5f8;
+    --surface: #ffffff;
+    --surface-2: #fafbfc;
+    --border: #e6e8ee;
+    --border-strong: #d6dae3;
+    --ink: #14171d;
+    --ink-2: #464e5c;
+    --ink-3: #78808f;
+
+    /* Estado */
+    --focus: #6b4bd8;
+    --focus-soft: rgba(107, 75, 216,.22);
+    --ok-bg: #eaf7e6;
+    --ok-ink: #2f6b2a;
+    --ok-border: #b6e0ac;
+    --error: #c0453b;
+    --error-bg: #fdefee;
+    --error-border: #f0c8c4;
+    --error-soft: rgba(192,69,59,.18);
+    --warn-bg: #fff7ea;
+    --warn-border: #f0dcb4;
+    --warn-accent: #d99a2b;
+    --warn-ink: #7a5510;
+    --warn-title: #8a4a12;
+
+    /* Sombras y formas */
+    --shadow-1: 0 1px 2px rgba(18,21,28,.04), 0 6px 16px -10px rgba(18,21,28,.18);
+    --shadow-2: 0 2px 6px rgba(18,21,28,.05), 0 20px 44px -18px rgba(18,21,28,.28);
+    --r-lg: 24px;
+    --r-md: 16px;
+    --r-sm: 11px;
+
+    --ease: cubic-bezier(.22,.7,.3,1);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0c0e12;
+      --surface: #15181e;
+      --surface-2: #1a1e25;
+      --border: rgba(255,255,255,.09);
+      --border-strong: rgba(255,255,255,.16);
+      --ink: #edeff4;
+      --ink-2: #b7bdca;
+      --ink-3: #868e9e;
+      --focus: #a794ff;
+      --focus-soft: rgba(167,148,255,.26);
+      --ok-bg: rgba(140,214,120,.13);
+      --ok-ink: #b6e8a8;
+      --ok-border: rgba(140,214,120,.35);
+      --error: #f0938a;
+      --error-bg: rgba(224,95,82,.12);
+      --error-border: rgba(224,95,82,.32);
+      --error-soft: rgba(224,95,82,.22);
+      --warn-bg: rgba(217,154,43,.10);
+      --warn-border: rgba(217,154,43,.28);
+      --warn-ink: #edcf9c;
+      --warn-title: #f3c98a;
+      --shadow-1: 0 1px 2px rgba(0,0,0,.35), 0 8px 20px -12px rgba(0,0,0,.6);
+      --shadow-2: 0 2px 8px rgba(0,0,0,.4), 0 24px 48px -20px rgba(0,0,0,.7);
+    }
+  }
+
+  /* =========================================================
+     BASE
+     ========================================================= */
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100svh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px 18px;
+    padding-top: max(24px, env(safe-area-inset-top));
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--ink);
+    background-color: var(--bg);
+    background-image:
+      radial-gradient(62% 42% at 8% -6%,  rgba(203,238,147,.40), transparent 62%),
+      radial-gradient(58% 40% at 96% -2%, rgba(138,111,224,.28), transparent 64%),
+      radial-gradient(90% 55% at 50% 112%, rgba(138,111,224,.16), transparent 62%);
+    background-attachment: fixed;
+    line-height: 1.55;
+  }
+
+  ::selection { background: rgba(138,111,224,.22); }
+
+  .wrap {
+    width: 100%;
+    max-width: 1000px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .card.hero-card {
+    background:
+      linear-gradient(115deg, rgba(203,238,147,.22), rgba(138,111,224,.15) 46%, rgba(138,111,224,0) 78%),
+      var(--surface);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .card.hero-card {
+      background:
+        linear-gradient(115deg, rgba(203,238,147,.10), rgba(138,111,224,.14) 46%, rgba(138,111,224,0) 78%),
+        var(--surface);
+    }
+  }
+
+  .grid-2 {
+    display: grid;
+    gap: 16px;
+    align-items: start;
+  }
+
+  @media (min-width: 860px) {
+    .grid-2 { grid-template-columns: 1fr 1fr; }
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-1);
+    padding: 22px;
+  }
+
+  /* =========================================================
+     ENCABEZADO
+     ========================================================= */
+  .hero {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    max-width: 660px;
+  }
+
+  .mark {
+    flex: 0 0 auto;
+    width: 54px;
+    height: 54px;
+    display: grid;
+    place-items: center;
+    border-radius: 16px;
+    background: var(--brand-grad);
+    box-shadow: 0 8px 20px -10px rgba(138,111,224,.75);
+  }
+
+  .mark svg { width: 28px; height: 28px; display: block; }
+
+  .eyebrow {
+    margin: 0 0 3px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(19px, 5vw, 25px);
+    font-weight: 700;
+    letter-spacing: -.02em;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+    background: var(--brand-grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  @supports not ((-webkit-background-clip: text) or (background-clip: text)) {
+    h1 { color: var(--ink); }
+  }
+
+  .sub {
+    margin: 6px 0 0;
+    font-size: 14.5px;
+    color: var(--ink-2);
+  }
+
+  /* =========================================================
+     BOTONES DE ENTRADA
+     ========================================================= */
+  .choices {
+    display: grid;
+    gap: 12px;
+  }
+
+  .choice {
+    -webkit-appearance: none;
+    appearance: none;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+    min-height: 88px;
+    padding: 16px 18px;
+    text-align: left;
+    font: inherit;
+    color: var(--brand-ink);
+    background: var(--brand-grad);
+    background-size: 180% 180%;
+    background-position: 0% 50%;
+    border: 0;
+    border-radius: var(--r-md);
+    box-shadow: var(--shadow-1);
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform .18s var(--ease),
+                box-shadow .18s var(--ease),
+                background-position .35s var(--ease);
+  }
+
+  .choice.java { background-position: 100% 50%; }
+
+  .choice:hover {
+    background-position: 100% 50%;
+    box-shadow: var(--shadow-2);
+    transform: translateY(-1px);
+  }
+
+  .choice.java:hover { background-position: 0% 50%; }
+
+  .choice:active {
+    transform: translateY(1px) scale(.995);
+    box-shadow: var(--shadow-1);
+  }
+
+  .ico {
+    flex: 0 0 auto;
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    border-radius: 13px;
+    background: rgba(255,255,255,.72);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.6);
+  }
+
+  .ico svg { width: 24px; height: 24px; display: block; }
+
+  .txt { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+
+  .name {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -.01em;
+  }
+
+  .meta {
+    font-size: 12.5px;
+    font-weight: 500;
+    color: rgba(18,21,28,.62);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .ico { background: rgba(255,255,255,.9); }
+  }
+
+  .chev {
+    flex: 0 0 auto;
+    margin-left: auto;
+    width: 18px;
+    height: 18px;
+    opacity: .5;
+    transition: transform .18s var(--ease), opacity .18s var(--ease);
+  }
+
+  .choice:hover .chev { opacity: .85; transform: translateX(2px); }
+
+  .choice[aria-expanded="true"] .chev { transform: rotate(90deg); }
+
+  @media (min-width: 520px) {
+    .choices { grid-template-columns: 1fr 1fr; }
+    .choice { min-height: 104px; }
+  }
+
+  /* =========================================================
+     PANELES
+     ========================================================= */
+  .panel {
+    margin-top: 16px;
+    padding: 18px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+  }
+
+  .panel[hidden] { display: none; }
+  .panel:not([hidden]) { animation: rise .28s var(--ease) both; }
+
+  .panel-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .panel-head::before {
+    content: "";
+    width: 26px;
+    height: 4px;
+    border-radius: 99px;
+    background: var(--brand-grad);
+    flex: 0 0 auto;
+  }
+
+  .panel h2 {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  p.steps, p.note {
+    margin: 0;
+    font-size: 14.5px;
+    color: var(--ink-2);
+  }
+
+  p.steps b, p.note b { color: var(--ink); font-weight: 600; }
+
+  /* =========================================================
+     DATO + COPIAR
+     ========================================================= */
+  .field {
+    margin: 14px 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .field + .note { margin-top: 12px; }
+
+  code.ip {
+    flex: 1 1 170px;
+    min-width: 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: .01em;
+    color: var(--ink);
+    background: var(--brand-soft);
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    padding: 11px 13px;
+    overflow-wrap: anywhere;
+    user-select: all;
+    -webkit-user-select: all;
+  }
+
+  .copy {
+    flex: 0 0 auto;
+    -webkit-appearance: none;
+    appearance: none;
+    min-width: 104px;
+    min-height: 46px;
+    padding: 11px 18px;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .02em;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-sm);
+    box-shadow: var(--shadow-1);
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color .18s var(--ease),
+                color .18s var(--ease),
+                border-color .18s var(--ease),
+                transform .12s var(--ease);
+  }
+
+  .copy:hover { border-color: var(--brand-4); color: var(--brand-4); }
+  .copy:active { transform: translateY(1px); }
+
+  .copy.ok {
+    background: var(--ok-bg);
+    color: var(--ok-ink);
+    border-color: var(--ok-border);
+  }
+
+  /* =========================================================
+     ALERTA
+     ========================================================= */
+  .alert {
+    margin-top: 14px;
+    padding: 14px 15px;
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-border);
+    border-left: 3px solid var(--warn-accent);
+    border-radius: var(--r-sm);
+  }
+
+  .alert[hidden] { display: none; }
+  .alert:not([hidden]) { animation: rise .28s var(--ease) both; }
+
+  .alert strong {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 8px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--warn-title);
+  }
+
+  .alert strong svg { width: 16px; height: 16px; flex: 0 0 auto; }
+
+  .alert p { color: var(--warn-ink); }
+  .alert .field { margin-top: 12px; }
+
+  .alert code.ip {
+    background: rgba(255,255,255,.6);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .alert code.ip { background: rgba(255,255,255,.06); }
+  }
+
+  /* =========================================================
+     PIE
+     ========================================================= */
+
+  .foot {
+    margin: 0;
+    text-align: center;
+    font-size: 12px;
+    color: var(--ink-3);
+  }
+
+  .foot code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: var(--ink-2);
+  }
+
+  /* =========================================================
+     VENTANA FLOTANTE (JAVA)
+     ========================================================= */
+  .modal {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    padding-top: max(20px, env(safe-area-inset-top));
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+  }
+
+  .modal[hidden] { display: none; }
+
+  .modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(16,18,24,.5);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    animation: fade .2s var(--ease) both;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .modal-backdrop { background: rgba(4,5,8,.66); }
+  }
+
+  .modal-box {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    max-height: calc(100dvh - 40px);
+    overflow-y: auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-2);
+    padding: 20px;
+    animation: pop .22s var(--ease) both;
+  }
+
+  .modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .modal-head h2 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -.01em;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+
+  .modal-head h2::before {
+    content: "";
+    width: 22px;
+    height: 4px;
+    border-radius: 99px;
+    background: var(--brand-grad);
+    flex: 0 0 auto;
+  }
+
+  .modal-close {
+    flex: 0 0 auto;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    color: var(--ink-2);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: color .18s var(--ease), border-color .18s var(--ease), transform .12s var(--ease);
+  }
+
+  .modal-close svg { width: 18px; height: 18px; }
+
+  .modal-close:hover { color: var(--ink); border-color: var(--border-strong); }
+  .modal-close:active { transform: translateY(1px); }
+
+  .modal-box .field { margin-top: 14px; }
+  .modal-box .note { margin-top: 12px; }
+
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+  @keyframes pop {
+    from { opacity: 0; transform: translateY(10px) scale(.97); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* =========================================================
+     SOPORTE
+     ========================================================= */
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .label {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--ink-2);
+  }
+
+  .input {
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 14px;
+    font: inherit;
+    font-size: 16px;
+    color: var(--ink);
+    background: var(--surface-2);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-sm);
+    transition: border-color .18s var(--ease), box-shadow .18s var(--ease), background-color .18s var(--ease);
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .input::placeholder { color: var(--ink-3); opacity: .75; }
+  .input:hover { border-color: var(--ink-3); }
+
+  .input:focus {
+    outline: none;
+    background: var(--surface);
+    border-color: var(--focus);
+    box-shadow: 0 0 0 4px var(--focus-soft);
+  }
+
+  .input:focus-visible { outline: none; }
+
+  .input[aria-invalid="true"] {
+    border-color: var(--error);
+    box-shadow: 0 0 0 4px var(--error-soft);
+  }
+
+  .textarea {
+    min-height: 104px;
+    resize: vertical;
+    line-height: 1.5;
+  }
+
+  .field-error {
+    margin: 0;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--error);
+  }
+
+  .field-error[hidden] { display: none; }
+
+  .field-hint {
+    margin: 0;
+    font-size: 12px;
+    color: var(--ink-3);
+  }
+
+  .send {
+    -webkit-appearance: none;
+    appearance: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 54px;
+    padding: 14px 20px;
+    font: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--brand-ink);
+    background: var(--brand-grad);
+    border: 0;
+    border-radius: var(--r-md);
+    box-shadow: var(--shadow-1);
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform .18s var(--ease), box-shadow .18s var(--ease);
+  }
+
+  .send svg { width: 18px; height: 18px; transition: transform .18s var(--ease); }
+
+  .send:hover { box-shadow: var(--shadow-2); transform: translateY(-1px); }
+  .send:hover svg { transform: translateX(3px); }
+  .send:active { transform: translateY(1px); }
+
+  .status {
+    margin: 0;
+    padding: 12px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.5;
+    border-radius: var(--r-sm);
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--ink-2);
+  }
+
+  .status[hidden] { display: none; }
+
+  .status.ok {
+    background: var(--ok-bg);
+    border-color: var(--ok-border);
+    color: var(--ok-ink);
+  }
+
+  .status.error {
+    background: var(--error-bg);
+    border-color: var(--error-border);
+    color: var(--error);
+  }
+
+  /* =========================================================
+     FOCO Y MOVIMIENTO
+     ========================================================= */
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 3px;
+  }
+
+  .choice:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 3px;
+    box-shadow: 0 0 0 6px var(--focus-soft);
+  }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  .card { animation: rise .38s var(--ease) both; }
+  .card.secondary { animation-delay: .06s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+    .choice:hover, .choice:active, .copy:active, .chev { transform: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<main class="wrap">
+
+  <div class="card hero-card">
+    <header class="hero">
+      <span class="mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M12 2.4 21.4 7.3 12 12.2 2.6 7.3 12 2.4Z" fill="#12151c" fill-opacity=".92"/>
+          <path d="M2.6 12.1 12 17l9.4-4.9v4.6L12 21.6 2.6 16.7v-4.6Z" fill="#12151c" fill-opacity=".5"/>
+        </svg>
+      </span>
+      <div>
+        <p class="eyebrow">Servidor de Minecraft</p>
+        <h1 id="server-name">Servidor de Minecraft</h1>
+        <p class="sub">Elige tu edición y entra en un toque.</p>
+      </div>
+    </header>
+  </div>
+
+  <div class="grid-2">
+
+    <div class="card secondary">
+      <div class="choices">
+
+      <button type="button" class="choice" id="btn-bedrock"
+              aria-expanded="false" aria-controls="panel-bedrock">
+        <span class="ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#12151c" stroke-width="1.9"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3.2 8.4 12 3.6l8.8 4.8v7.2L12 20.4l-8.8-4.8V8.4Z"/>
+            <path d="M12 20.4V12l8.8-3.6M12 12 3.2 8.4"/>
+          </svg>
+        </span>
+        <span class="txt">
+          <span class="name">Bedrock</span>
+          <span class="meta">Android · iOS · Windows 10-11</span>
+        </span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m9 5 7 7-7 7"/>
+        </svg>
+      </button>
+
+      <button type="button" class="choice java" id="btn-java" aria-haspopup="dialog">
+        <span class="ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#12151c" stroke-width="1.9"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14.8 3.6 6.2 12.1a2.2 2.2 0 0 0 0 3.1l.5.5a2.2 2.2 0 0 0 3.1 0l8.5-8.6"/>
+            <path d="m12.2 7.1 4.7 4.7M9.6 9.7 5 6.1M9.7 14.3l-3.6 3.6"/>
+          </svg>
+        </span>
+        <span class="txt">
+          <span class="name">Java</span>
+          <span class="meta">Windows · macOS · Linux</span>
+        </span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m9 5 7 7-7 7"/>
+        </svg>
+      </button>
+
+    </div>
+
+    <!-- Bedrock -->
+    <div class="panel" id="panel-bedrock" hidden>
+      <div class="panel-head"><h2>Abrir en Bedrock</h2></div>
+      <p class="steps">
+        Al tocar el botón, Minecraft Bedrock se abre y el servidor queda
+        <b>agregado automáticamente</b> en tus servidores. En computadora el
+        navegador puede pedir confirmación antes de abrirlo.
+      </p>
+      <div class="alert" id="bedrock-alert" role="status" aria-live="polite" hidden>
+        <strong>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3.8 21 19.2H3L12 3.8Z"/><path d="M12 9.6v4.2M12 16.6h.01"/>
+          </svg>
+          No se detectó Minecraft Bedrock
+        </strong>
+        <p class="note">
+          Agrega el servidor a mano: en Bedrock ve a
+          <b>Amigos → Añadir servidor</b> y escribe:
+        </p>
+        <div class="field">
+          <code class="ip" id="bedrock-manual">—</code>
+          <button type="button" class="copy" data-copy-target="bedrock-manual"
+                  aria-live="polite">Copiar</button>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <!-- Soporte -->
+    <div class="card secondary">
+      <div class="panel-head"><h2>Soporte</h2></div>
+      <p class="steps" style="margin-bottom:16px">
+        ¿Dudas, errores o propuestas? Escríbenos y te ayudamos.
+      </p>
+
+      <form class="form" id="support-form" novalidate>
+        <div class="form-group">
+          <label class="label" for="support-mail">Tu correo electrónico</label>
+          <input class="input" type="email" id="support-mail" name="email"
+                 placeholder="nombre@correo.com" autocomplete="email"
+                 inputmode="email" required aria-describedby="support-mail-error">
+          <p class="field-error" id="support-mail-error" aria-live="polite" hidden></p>
+        </div>
+
+        <div class="form-group">
+          <label class="label" for="support-message">Comentario, consulta o problema</label>
+          <textarea class="input textarea" id="support-message" name="mensaje"
+                    rows="4" placeholder="Cuéntanos qué necesitas…"
+                    aria-describedby="support-hint"></textarea>
+          <p class="field-hint" id="support-hint">
+            Se abrirá tu aplicación de correo con el mensaje ya escrito.
+          </p>
+        </div>
+
+        <button type="submit" class="send">
+          <span>Enviar</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 12h15M13 6l6 6-6 6"/>
+          </svg>
+        </button>
+
+        <p class="status" id="support-status" role="status" aria-live="polite" hidden></p>
+        <p class="field-hint" id="support-destino" style="text-align:center" hidden></p>
+      </form>
+    </div>
+
+  </div>
+
+  <p class="foot">IP del servidor: <code id="foot-ip">—</code></p>
+
+</main>
+
+<!-- Ventana flotante de Java -->
+<div class="modal" id="modal-java" role="dialog" aria-modal="true"
+     aria-labelledby="modal-java-title" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2 id="modal-java-title">Entrar en Java</h2>
+      <button type="button" class="modal-close" data-close data-autofocus
+              aria-label="Cerrar ventana">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+             stroke-linecap="round" aria-hidden="true">
+          <path d="M6 6l12 12M18 6 6 18"/>
+        </svg>
+      </button>
+    </div>
+    <p class="steps">
+      Abre Minecraft Java, ve a <b>Multijugador → Agregar servidor</b> y pega esta IP:
+    </p>
+    <div class="field">
+      <code class="ip" id="java-ip">—</code>
+      <button type="button" class="copy" data-copy-target="java-ip"
+              aria-live="polite">Copiar</button>
+    </div>
+    <p class="note">El puerto de Java es el predeterminado (25565), no necesitas escribirlo.</p>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   1) CONFIGURACIÓN  —  edita SOLO este bloque
+   ============================================================ */
+const CONFIG = {
+  SERVER_NAME: 'TrolardyCraft Server',   // Nombre que se verá en Minecraft
+  SERVER_IP:   'trolardycraft.mcsh.io',  // IP o dominio del servidor
+  BEDROCK_PORT: 19132,                   // Puerto de Bedrock
+
+  // Correo de destino del apartado Soporte.
+  SUPPORT_EMAIL: 'trolardycraft@gmail.com'
+};
+/* ============================================================ */
+
+/* --- Datos derivados y limpieza de la configuración --- */
+const HOST = String(CONFIG.SERVER_IP || '')
+  .trim()
+  .replace(/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//, '')   // quita https://, minecraft://, etc.
+  .replace(/\/+$/, '')                             // quita "/" al final
+  .split('/')[0];
+
+const PORT = Number(CONFIG.BEDROCK_PORT) || 19132;
+const SERVER_NAME = String(CONFIG.SERVER_NAME || 'Servidor de Minecraft').trim() || 'Servidor de Minecraft';
+
+/* --- Rellena los textos de la página --- */
+document.getElementById('server-name').textContent = SERVER_NAME;
+document.getElementById('foot-ip').textContent = HOST;
+document.getElementById('java-ip').textContent = HOST;
+document.getElementById('bedrock-manual').textContent = HOST + ':' + PORT;
+document.title = 'Entrar a ' + SERVER_NAME;
+
+/* --- Referencias del DOM --- */
+const btnBedrock = document.getElementById('btn-bedrock');
+const btnJava    = document.getElementById('btn-java');
+const panelBedrock = document.getElementById('panel-bedrock');
+const alertBedrock = document.getElementById('bedrock-alert');
+
+/* ---------- Abrir / cerrar el panel de Bedrock ---------- */
+function togglePanel(panel, button, show) {
+  const willShow = typeof show === 'boolean' ? show : panel.hidden;
+  panel.hidden = !willShow;
+  button.setAttribute('aria-expanded', String(willShow));
+}
+
+btnBedrock.addEventListener('click', () => {
+  togglePanel(panelBedrock, btnBedrock, true);
+  panelBedrock.scrollIntoView({ block: 'nearest' });
+});
+
+/* ---------- Copiar al portapapeles ---------- */
+function copyText(text) {
+  return new Promise((resolve) => {
+    // Método moderno: requiere contexto seguro (HTTPS o localhost).
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(
+        () => resolve(true),
+        () => resolve(copyFallback(text))
+      );
+      return;
+    }
+    resolve(copyFallback(text));
+  });
+}
+
+function copyFallback(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.setAttribute('readonly', '');
+  ta.style.position = 'fixed';
+  ta.style.top = '0';
+  ta.style.left = '-9999px';
+  ta.style.fontSize = '16px'; // evita el zoom automático en iOS
+  document.body.appendChild(ta);
+  ta.select();
+  ta.setSelectionRange(0, ta.value.length);
+  let ok = false;
+  try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+  document.body.removeChild(ta);
+  return ok;
+}
+
+document.querySelectorAll('.copy').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const target = document.getElementById(btn.dataset.copyTarget);
+    if (!target) return;
+    const original = btn.textContent;
+    copyText(target.textContent).then((ok) => {
+      btn.textContent = ok ? '¡Copiada!' : 'Error';
+      btn.classList.toggle('ok', ok);
+      setTimeout(() => {
+        btn.textContent = original;
+        btn.classList.remove('ok');
+      }, 1800);
+    });
+  });
+});
+
+/* ---------- Ventana flotante de Java ---------- */
+const modalJava = document.getElementById('modal-java');
+let lastFocused = null;
+
+function openModal() {
+  lastFocused = document.activeElement;
+  modalJava.hidden = false;
+  document.body.style.overflow = 'hidden';
+  const first = modalJava.querySelector('[data-autofocus]') || modalJava.querySelector('button');
+  if (first) first.focus();
+}
+
+function closeModal() {
+  modalJava.hidden = true;
+  document.body.style.overflow = '';
+  if (lastFocused) lastFocused.focus();
+}
+
+btnJava.addEventListener('click', openModal);
+
+modalJava.addEventListener('click', (e) => {
+  if (e.target.hasAttribute('data-close')) closeModal();
+});
+
+// Cierra con la tecla Escape y mantiene el foco dentro de la ventana.
+modalJava.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') { closeModal(); return; }
+  if (e.key !== 'Tab') return;
+
+  const focusables = modalJava.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+  if (!focusables.length) return;
+
+  const first = focusables[0];
+  const last = focusables[focusables.length - 1];
+
+  if (e.shiftKey && document.activeElement === first) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && document.activeElement === last) {
+    e.preventDefault();
+    first.focus();
+  }
+});
+
+/* ---------- Bedrock: abrir la app y detectar si falló ---------- */
+const LAUNCH_CHECK_MS = 2500;
+
+btnBedrock.addEventListener('click', () => {
+  togglePanel(panelBedrock, btnBedrock, true);
+
+  let leftPage = false;
+  let cameBack = false;
+
+  const onBlur = () => { leftPage = true; };
+  const onPageHide = () => { leftPage = true; };
+  const onVisChange = () => {
+    if (document.hidden) leftPage = true;
+    else cameBack = true;
+  };
+  const onFocus = () => { cameBack = true; };
+
+  window.addEventListener('blur', onBlur);
+  window.addEventListener('pagehide', onPageHide);
+  document.addEventListener('visibilitychange', onVisChange);
+  window.addEventListener('focus', onFocus);
+
+  const clean = () => {
+    window.removeEventListener('blur', onBlur);
+    window.removeEventListener('pagehide', onPageHide);
+    document.removeEventListener('visibilitychange', onVisChange);
+    window.removeEventListener('focus', onFocus);
+    clearTimeout(timer);
+  };
+
+  // Si nunca se fue de la página (o volvió enseguida), la app no se abrió.
+  const timer = setTimeout(() => {
+    clean();
+    if (!leftPage || cameBack) {
+      alertBedrock.hidden = false;
+    }
+  }, LAUNCH_CHECK_MS);
+
+  // Enlace de protocolo: abre la app y agrega el servidor.
+  // Debe ejecutarse de forma síncrona dentro del clic para no ser bloqueado.
+  const url = 'minecraft://?addExternalServer=' + encodeURIComponent(SERVER_NAME) + '|' + HOST + ':' + PORT;
+  window.location.href = url;
+});
+
+/* ---------- Apartado de Soporte ---------- */
+const SUPPORT = String(CONFIG.SUPPORT_EMAIL || '').trim();
+const form      = document.getElementById('support-form');
+const inputMail = document.getElementById('support-mail');
+const inputMsg  = document.getElementById('support-message');
+const statusBox = document.getElementById('support-status');
+const mailError = document.getElementById('support-mail-error');
+const destino   = document.getElementById('support-destino');
+
+// El destino solo se muestra si ya está configurado.
+if (destino) {
+  destino.textContent = SUPPORT ? 'Destino: ' + SUPPORT : '';
+  destino.hidden = !SUPPORT;
+}
+
+function showStatus(type, text) {
+  statusBox.className = 'status ' + type;
+  statusBox.textContent = text;
+  statusBox.hidden = false;
+}
+
+function clearError() {
+  mailError.hidden = true;
+  inputMail.removeAttribute('aria-invalid');
+}
+
+inputMail.addEventListener('input', clearError);
+
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  clearError();
+
+  // 1) Validar el correo: obligatorio y con formato válido.
+  const mail = inputMail.value.trim();
+  const valido = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(mail);
+
+  if (!mail) {
+    mailError.textContent = 'Escribe tu correo electrónico.';
+    mailError.hidden = false;
+    inputMail.setAttribute('aria-invalid', 'true');
+    inputMail.focus();
+    showStatus('error', 'No se pudo enviar: falta tu correo electrónico.');
+    return;
+  }
+
+  if (!valido) {
+    mailError.textContent = 'Ese correo no parece válido. Ejemplo: nombre@correo.com';
+    mailError.hidden = false;
+    inputMail.setAttribute('aria-invalid', 'true');
+    inputMail.focus();
+    showStatus('error', 'No se pudo enviar: revisa el formato de tu correo.');
+    return;
+  }
+
+  // 2) El envío necesita una dirección de destino configurada.
+  if (!SUPPORT) {
+    showStatus('error', 'El envío por correo todavía no está disponible. Inténtalo más tarde.');
+    return;
+  }
+
+  // 3) Abrir el gestor de correo con todo redactado.
+  const fecha = new Date().toLocaleString('es-ES', {
+    dateStyle: 'medium',
+    timeStyle: 'short'
+  });
+
+  const asunto = 'Soporte - ' + SERVER_NAME;
+  const cuerpo = [
+    'Correo de contacto: ' + mail,
+    'Fecha y hora del envío: ' + fecha,
+    '',
+    'Mensaje:',
+    inputMsg.value.trim() || '(sin mensaje)'
+  ].join('\n');
+
+  const href = 'mailto:' + SUPPORT +
+    '?subject=' + encodeURIComponent(asunto) +
+    '&body=' + encodeURIComponent(cuerpo);
+
+  window.location.href = href;
+
+  form.reset();
+  showStatus('ok', 'Listo: se abrió tu aplicación de correo con el mensaje ya escrito. Solo pulsa enviar. Si no se abrió, escríbelo a ' + SUPPORT + '.');
+});
+</script>
+</body>
+</html>
